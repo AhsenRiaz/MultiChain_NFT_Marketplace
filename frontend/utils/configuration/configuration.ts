@@ -9,9 +9,9 @@ export const cipherEth = simpleCrypto.encrypt(ethraw);
 export const cipherHH = simpleCrypto.encrypt(hhraw);
 
 export const hh_Resell_Contract_Address =
-  "0x0165878A594ca255338adfa4d48449f69242Eb8F";
+  "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690";
 export const hh_NFT_Contract_Address =
-  "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+  "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1";
 const hhrpc = "http://localhost:8545";
 
 export var mainnet = hhrpc;
