@@ -31,11 +31,12 @@ const Portal = () => {
   const [resalePrice, setResalePrice] = useState({ price: "" });
   const [nfts, setNfts] = useState<any[]>([]);
   const [loadingState, setLoadingState] = useState<boolean>(false);
+  const [nftsFound, setNftsFound] = useState<boolean>(false);
 
   useEffect(() => {
     connectUser();
     getWalletNFTs();
-  }, [setNfts, user]);
+  }, [setNfts, user, nftsFound]);
 
   const connectUser = async () => {
     try {
@@ -86,9 +87,11 @@ const Portal = () => {
             let rawImg = value && value.data && value.data.image;
             let name = value && value.data && value.data.name;
             let desc = value && value.data && value.data.description;
-            let image = rawImg.replace("ipfs://", "https://ipfs.io/ipfs/");
+            let image =
+              rawImg && rawImg.replace("ipfs://", "https://ipfs.io/ipfs/");
             Promise.resolve(owner).then((value) => {
               if (value === user) {
+                setNftsFound(true);
                 let owner = value;
                 let meta = {
                   name: name,
@@ -98,8 +101,9 @@ const Portal = () => {
                   desc,
                 };
                 itemArray.push(meta);
+              } else {
+                setNfts([]);
               }
-              setNfts([]);
             });
           });
         }
@@ -112,28 +116,6 @@ const Portal = () => {
       console.log("Error occured");
     }
   };
-
-  // if (!nfts.length) {
-  //   return (
-  //     <Container>
-  //       <Row>
-  //         <Col
-  //           css={{
-  //             width: "100%",
-  //             border: "2px solid red",
-  //             display: "flex",
-  //             justifyContent: "center",
-  //             height:'70vh',
-  //             alignItems:"center"
-            
-  //           }}
-  //         >
-  //           <Text h3>No NFT Found</Text>
-  //         </Col>
-  //       </Row>
-  //     </Container>
-  //   );
-  // }
 
   return (
     <div>
@@ -163,6 +145,7 @@ const Portal = () => {
                 Refresh NFTs
               </Button>
             </Row>
+            {nftsFound === false && <Text h1>No NFT Found</Text>}
           </Col>
         </Row>
         <Grid.Container gap={3}>
