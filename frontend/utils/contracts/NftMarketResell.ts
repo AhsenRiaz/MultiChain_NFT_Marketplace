@@ -2,7 +2,7 @@ export const NftMarketResell_Contract_Abi = [
   {
     inputs: [
       {
-        internalType: "contract IERC721",
+        internalType: "contract ERC721Enumerable",
         name: "_nft",
         type: "address",
       },
@@ -16,32 +16,26 @@ export const NftMarketResell_Contract_Abi = [
       {
         indexed: true,
         internalType: "uint256",
-        name: "itemId",
-        type: "uint256",
-      },
-      {
-        indexed: true,
-        internalType: "uint256",
         name: "tokenId",
         type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "price",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "owner",
-        type: "address",
       },
       {
         indexed: false,
         internalType: "address",
         name: "seller",
         type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "holder",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "price",
+        type: "uint256",
       },
       {
         indexed: false,
@@ -80,7 +74,7 @@ export const NftMarketResell_Contract_Abi = [
         type: "uint256",
       },
     ],
-    name: "buyNFT",
+    name: "buyNft",
     outputs: [],
     stateMutability: "payable",
     type: "function",
@@ -100,7 +94,7 @@ export const NftMarketResell_Contract_Abi = [
   },
   {
     inputs: [],
-    name: "itemIds",
+    name: "getListingFee",
     outputs: [
       {
         internalType: "uint256",
@@ -112,8 +106,14 @@ export const NftMarketResell_Contract_Abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "itemsSold",
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "getPrice",
     outputs: [
       {
         internalType: "uint256",
@@ -133,66 +133,25 @@ export const NftMarketResell_Contract_Abi = [
       },
       {
         internalType: "uint256",
-        name: "worth",
+        name: "price",
         type: "uint256",
       },
     ],
-    name: "listNFT",
+    name: "listSale",
     outputs: [],
     stateMutability: "payable",
     type: "function",
   },
   {
     inputs: [],
-    name: "listingFees",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "nft",
-    outputs: [
-      {
-        internalType: "contract IERC721",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "nftListing",
+    name: "nftListings",
     outputs: [
       {
         components: [
           {
             internalType: "uint256",
-            name: "itemId",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
             name: "tokenId",
             type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "price",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "owner",
-            type: "address",
           },
           {
             internalType: "address payable",
@@ -200,12 +159,22 @@ export const NftMarketResell_Contract_Abi = [
             type: "address",
           },
           {
+            internalType: "address payable",
+            name: "holder",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "price",
+            type: "uint256",
+          },
+          {
             internalType: "bool",
             name: "sold",
             type: "bool",
           },
         ],
-        internalType: "struct NftMarketResell.List[]",
+        internalType: "struct NFTMarketResell.List[]",
         name: "",
         type: "tuple[]",
       },
@@ -261,25 +230,6 @@ export const NftMarketResell_Contract_Abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "price",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "renounceOwnership",
     outputs: [],
@@ -311,28 +261,23 @@ export const NftMarketResell_Contract_Abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "itemId",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
         name: "tokenId",
         type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "price",
-        type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "owner",
-        type: "address",
       },
       {
         internalType: "address payable",
         name: "seller",
         type: "address",
+      },
+      {
+        internalType: "address payable",
+        name: "holder",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "price",
+        type: "uint256",
       },
       {
         internalType: "bool",
@@ -341,6 +286,13 @@ export const NftMarketResell_Contract_Abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "withdraw",
+    outputs: [],
+    stateMutability: "payable",
     type: "function",
   },
 ];
