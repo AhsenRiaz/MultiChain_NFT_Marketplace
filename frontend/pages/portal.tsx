@@ -133,9 +133,9 @@ const Portal = () => {
     }
   };
 
-  const relistNFT = async (id: number) => {
+  const relistNFT = async (tokenId: number) => {
     try {
-      let tokenId = id + 1;
+      console.log("tokenId", tokenId)
       const signer = await openWeb3Modal();
       const price = ethers.utils.parseUnits(resalePrice as string, "ether");
       const nftContract = new ethers.Contract(
@@ -148,9 +148,10 @@ const Portal = () => {
         NftMarketResell_Contract_Abi,
         signer
       );
-      await nftContract.approve(hh_Resell_Contract_Address, tokenId);
-      let listingFee = await resellNftContract.listingFees();
-      let transaction = await resellNftContract.listNFT(tokenId, price, {
+      console.log("resellNftContract", resellNftContract);
+      await nftContract.setApprovalForAll(hh_Resell_Contract_Address, true);
+      let listingFee = await resellNftContract.getListingFee();
+      let transaction = await resellNftContract.listSale(tokenId, price, {
         value: listingFee,
       });
       let fulfilled = await transaction.wait();
@@ -228,7 +229,7 @@ const Portal = () => {
                         size="md"
                         color={"gradient"}
                         css={{ mt: "$5", fontSize: "16px" }}
-                        onClick={async () => await relistNFT(i)}
+                        onClick={async () => await relistNFT(nft.tokenId)}
                       >
                         Relist for Sale
                       </Button>
