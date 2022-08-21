@@ -44,7 +44,7 @@ const theme = createTheme({
 
 const Header = () => {
   return (
-    <div style={{ border: "2px solid red" }}>
+    <div style={{ backgroundColor: "black" }}>
       <Container xl>
         <Row justify="center" align="center" css={{ padding: "0rem 1rem" }}>
           <Col>
@@ -63,7 +63,7 @@ const Header = () => {
                   style={{
                     fontFamily: "SF Pro Display",
                     fontWeight: "500",
-                    color: "black",
+                    color: "white",
                     fontSize: "20px",
                   }}
                 >
@@ -72,7 +72,7 @@ const Header = () => {
               </Button>
             </Link>
           </Col>
-          <Col css={{ marginTop: "$8" }}>
+          <Col >
             <Link href="/collections">
               <Button
                 size="sm"
@@ -94,7 +94,7 @@ const Header = () => {
               </Button>
             </Link>
           </Col>
-          <Col css={{ marginTop: "$8" }}>
+          <Col >
             <Button
               size="sm"
               style={{
