@@ -20,15 +20,19 @@ import Web3 from "web3";
 import {
   cipherHH,
   hh_NFT_Contract_Address,
+  hh_Resell_Contract_Address,
   mainnet,
   simpleCrypto,
 } from "../utils/configuration/configuration";
 import { Collection_Contract_Abi } from "../utils/contracts/Collection";
 import Loader from "../components/Loader";
+import { NftMarketResell_Contract_Abi } from "../utils/contracts/NftMarketResell";
 
 const Portal = () => {
+  const router = useRouter();
+
   const [user, setUser] = useState<string | null>(null);
-  const [resalePrice, setResalePrice] = useState({ price: "" });
+  const [resalePrice, setResalePrice] = useState<string | null>(null);
   const [nfts, setNfts] = useState<any[]>([]);
   const [loadingState, setLoadingState] = useState<boolean>(false);
   const [nftsFound, setNftsFound] = useState<boolean>(false);
@@ -117,6 +121,46 @@ const Portal = () => {
     }
   };
 
+  const openWeb3Modal = async () => {
+    try {
+      const web3Modal = new Web3Modal();
+      const connection = await web3Modal.connect();
+      const provider = new ethers.providers.Web3Provider(connection);
+      const signer = provider.getSigner();
+      return signer;
+    } catch (err) {
+      console.log("Error in openWeb3Modal", err);
+    }
+  };
+
+  const relistNFT = async (id: number) => {
+    try {
+      let tokenId = id + 1;
+      const signer = await openWeb3Modal();
+      const price = ethers.utils.parseUnits(resalePrice as string, "ether");
+      const nftContract = new ethers.Contract(
+        hh_NFT_Contract_Address,
+        Collection_Contract_Abi,
+        signer
+      );
+      const resellNftContract = new ethers.Contract(
+        hh_Resell_Contract_Address,
+        NftMarketResell_Contract_Abi,
+        signer
+      );
+      await nftContract.approve(hh_Resell_Contract_Address, tokenId);
+      let listingFee = await resellNftContract.listingFees();
+      let transaction = await resellNftContract.listNFT(tokenId, price, {
+        value: listingFee,
+      });
+      let fulfilled = await transaction.wait();
+      console.log("fulfilled", fulfilled);
+      router.push("/");
+    } catch (err) {
+      console.log("Error in relistNFT", err);
+    }
+  };
+
   return (
     <div>
       <Container sm>
@@ -165,27 +209,26 @@ const Portal = () => {
                       <Text h5>
                         {nft.name} Token-{nft.tokenId}
                       </Text>
-                      <Text>{nft.desc}</Text>
+                      {/* <Text>{nft.desc}</Text> */}
                       <Input
                         size="sm"
                         css={{
-                          marginTop: "$2",
+                          marginTop: "$4",
                           maxWidth: "120px",
                           marginBottom: "$2",
-                          border: "$blue500",
-                        }}
-                        style={{
-                          color: "black",
+                          border: "$inputBorder",
                           fontFamily: "SF Pro Display",
                           fontWeight: "bolder",
-                          fontSize: "15px",
+                          fontSize: "large",
                         }}
+                        onChange={(e) => setResalePrice(e.target.value)}
                         placeholder="Set your price"
                       />
                       <Button
                         size="md"
                         color={"gradient"}
                         css={{ mt: "$5", fontSize: "16px" }}
+                        onClick={async () => await relistNFT(i)}
                       >
                         Relist for Sale
                       </Button>
