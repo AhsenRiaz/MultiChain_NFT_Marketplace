@@ -1,156 +1,104 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.9;
+// SPDX-License-Identifier: MIT LICENSE
 
-// Import this file to use console.log
-import "hardhat/console.sol";
+pragma solidity 0.8.4;
 
-// Import OpenZeppelin contracts
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/interfaces/IERC721.sol";
 
-contract NftMarketResell is IERC721Receiver, Ownable, ReentrancyGuard {
-    using Counters for Counters.Counter;
-
-    Counters.Counter private _itemIds;
-    Counters.Counter private _itemsSold;
-
-    uint256 private _listingFees = 0.0025 ether;
-
-    IERC721 public nft;
+contract NFTMarketResell is IERC721Receiver, ReentrancyGuard, Ownable {
+    address payable holder;
+    uint256 listingFee = 0.0025 ether;
 
     struct List {
-        uint256 itemId;
         uint256 tokenId;
-        uint256 price;
-        address owner;
         address payable seller;
+        address payable holder;
+        uint256 price;
         bool sold;
     }
 
     mapping(uint256 => List) public vaultItems;
 
     event NFTListCreated(
-        uint256 indexed itemId,
         uint256 indexed tokenId,
-        uint256 price,
-        address owner,
         address seller,
+        address holder,
+        uint256 price,
         bool sold
     );
 
-    modifier validSender() {
-        require(msg.sender != address(0));
-        _;
+    function getListingFee() public view returns (uint256) {
+        return listingFee;
     }
 
-    constructor(IERC721 _nft) {
+    ERC721Enumerable nft;
+
+    constructor(ERC721Enumerable _nft) {
+        holder = payable(msg.sender);
         nft = _nft;
     }
 
-    function itemIds() external view returns (uint256) {
-        return _itemIds.current();
-    }
-
-    function itemsSold() external view returns (uint256) {
-        return _itemsSold.current();
-    }
-
-    function listingFees() external view returns (uint256) {
-        return _listingFees;
-    }
-
-    function listNFT(uint256 tokenId, uint256 worth)
-        external
+    function listSale(uint256 tokenId, uint256 price)
+        public
         payable
-        validSender
         nonReentrant
     {
+        require(nft.ownerOf(tokenId) == msg.sender, "NFT not yours");
+        require(vaultItems[tokenId].tokenId == 0, "NFT already listed");
+        require(price > 0, "Amount must be higher than 0");
         require(
-            nft.ownerOf(tokenId) == msg.sender,
-            "NftMarketResell: not the owner"
+            msg.value == listingFee,
+            "Please transfer 0.0025 crypto to pay listing fee"
         );
-        require(
-            vaultItems[tokenId].tokenId == 0,
-            "NftMarketResell: already on sale"
-        );
-        require(worth > 0, "NftMarketResell: price < 0");
-        require(msg.value == _listingFees, "msg.value < listingFees");
-
-        _itemIds.increment();
-        uint256 itemId = _itemIds.current();
-
-        vaultItems[itemId] = List(
-            itemId,
+        vaultItems[tokenId] = List(
             tokenId,
-            worth,
-            address(this),
             payable(msg.sender),
+            payable(address(this)),
+            price,
             false
         );
-
         nft.transferFrom(msg.sender, address(this), tokenId);
-
-        emit NFTListCreated(
-            itemId,
-            tokenId,
-            worth,
-            address(this),
-            msg.sender,
-            false
-        );
+        emit NFTListCreated(tokenId, msg.sender, address(this), price, false);
     }
 
-    function buyNFT(uint256 tokenId) external payable validSender nonReentrant {
+    function buyNft(uint256 tokenId) public payable nonReentrant {
+        uint256 price = vaultItems[tokenId].price;
         require(
-            vaultItems[tokenId].tokenId != 0,
-            "NftMarketResell: not listed"
+            msg.value == price,
+            "Transfer Total Amount to complete transaction"
         );
-        require(msg.value == vaultItems[tokenId].price);
-
-        _itemsSold.increment();
-
-        vaultItems[tokenId].owner = msg.sender;
         vaultItems[tokenId].seller.transfer(msg.value);
-        vaultItems[tokenId].sold = true;
         nft.transferFrom(address(this), msg.sender, tokenId);
-
+        vaultItems[tokenId].sold = true;
         delete vaultItems[tokenId];
     }
 
-    function cancelSale(uint tokenId) external validSender {
-        require(
-            vaultItems[tokenId].tokenId != 0,
-            "NFTMarketResell: not listed"
-        );
+    function cancelSale(uint256 tokenId) public nonReentrant {
+        require(vaultItems[tokenId].seller == msg.sender, "NFT not yours");
+        nft.transferFrom(address(this), msg.sender, tokenId);
         delete vaultItems[tokenId];
     }
 
-    function price(uint tokenId) external view validSender returns (uint256) {
-        require(
-            vaultItems[tokenId].tokenId != 0,
-            "NFTMarketResell: not listed"
-        );
-        return vaultItems[tokenId].price;
+    function getPrice(uint256 tokenId) public view returns (uint256) {
+        uint256 price = vaultItems[tokenId].price;
+        return price;
     }
 
-    function nftListing() external view returns (List[] memory) {
-        uint256 totalItemsCount = _itemIds.current();
-        uint256 unsoldItemsCount = _itemIds.current() - _itemsSold.current();
-
-        List[] memory list = new List[](unsoldItemsCount);
+    function nftListings() public view returns (List[] memory) {
+        uint256 nftCount = nft.totalSupply();
         uint currentIndex = 0;
-
-        for (uint i = 1; i <= totalItemsCount; i++) {
-            if (vaultItems[i].owner == address(this)) {
-                List memory currentItem = vaultItems[i];
-                list[currentIndex] = currentItem;
-                currentIndex++;
+        List[] memory items = new List[](nftCount);
+        for (uint i = 0; i < nftCount; i++) {
+            if (vaultItems[i + 1].holder == address(this)) {
+                uint currentId = i + 1;
+                List storage currentItem = vaultItems[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
             }
         }
-        return list;
+        return items;
     }
 
     function onERC721Received(
@@ -159,7 +107,11 @@ contract NftMarketResell is IERC721Receiver, Ownable, ReentrancyGuard {
         uint256,
         bytes calldata
     ) external pure override returns (bytes4) {
-        require(from == address(0x0));
+        require(from == address(0x0), "Cannot send nfts to Vault directly");
         return IERC721Receiver.onERC721Received.selector;
+    }
+
+    function withdraw() public payable onlyOwner {
+        require(payable(msg.sender).send(address(this).balance));
     }
 }
