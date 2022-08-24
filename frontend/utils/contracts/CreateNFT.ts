@@ -324,6 +324,19 @@ export const Create_NFT_ABI = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "getTokenIds",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",

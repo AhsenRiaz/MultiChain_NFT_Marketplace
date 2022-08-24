@@ -13,8 +13,6 @@ import Link from "next/link";
 import "sf-font";
 import Logo from "../public/assets/logo.png";
 
-
-
 const Header = () => {
   return (
     <div style={{ backgroundColor: "black" }}>
@@ -45,7 +43,7 @@ const Header = () => {
               </Button>
             </Link>
           </Col>
-          <Col >
+          <Col>
             <Link href="/collections">
               <Button
                 size="sm"
@@ -67,7 +65,29 @@ const Header = () => {
               </Button>
             </Link>
           </Col>
-          <Col >
+          <Col>
+            <Button
+              size="sm"
+              style={{
+                background: "#00000070",
+                boxShadow: "0px 0px 4px #ffffff",
+              }}
+            >
+              <Link href="/create">
+                <a
+                  style={{
+                    fontFamily: "SF Pro Display",
+                    fontWeight: "500",
+                    color: "white",
+                    fontSize: "20px",
+                  }}
+                >
+                  Create NFT
+                </a>
+              </Link>
+            </Button>
+          </Col>
+          <Col>
             <Button
               size="sm"
               style={{

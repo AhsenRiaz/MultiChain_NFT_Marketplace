@@ -18,8 +18,10 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Web3 from "web3";
 import {
+  auth,
   cipherHH,
   hh_NFT_Contract_Address,
+  hh_NFT_Create_Address,
   hh_Resell_Contract_Address,
   mainnet,
   simpleCrypto,
@@ -27,6 +29,7 @@ import {
 import { Collection_Contract_Abi } from "../utils/contracts/Collection";
 import Loader from "../components/Loader";
 import { NftMarketResell_Contract_Abi } from "../utils/contracts/NftMarketResell";
+import { Create_NFT_ABI } from "../utils/contracts/CreateNFT";
 
 const Portal = () => {
   const router = useRouter();
@@ -34,13 +37,16 @@ const Portal = () => {
   const [user, setUser] = useState<string | null>(null);
   const [resalePrice, setResalePrice] = useState<string | null>(null);
   const [nfts, setNfts] = useState<any[]>([]);
+  const [createdNfts, setCreatedNfts] = useState<any[]>([]);
+
   const [loadingState, setLoadingState] = useState<boolean>(false);
   const [nftsFound, setNftsFound] = useState<boolean>(false);
 
   useEffect(() => {
     connectUser();
     getWalletNFTs();
-  }, [setNfts, user, nftsFound]);
+    getCreatedNfts();
+  }, [setNfts, user, nftsFound, setCreatedNfts]);
 
   const connectUser = async () => {
     try {
@@ -121,6 +127,80 @@ const Portal = () => {
     }
   };
 
+  const getCreatedNfts = async () => {
+    try {
+      setLoadingState(true);
+      const provider = new ethers.providers.JsonRpcProvider(mainnet);
+      const key = simpleCrypto.decrypt(cipherHH).toString();
+      const wallet = new ethers.Wallet(key, provider);
+      const contract = new ethers.Contract(
+        hh_NFT_Create_Address,
+        Create_NFT_ABI,
+        wallet
+      );
+      const itemArray = [] as any;
+      contract.getTokenIds().then((result: any) => {
+        let totalSup = parseInt(result);
+        for (let i = 0; i < totalSup; i++) {
+          var token = i + 1;
+          const owner = contract.ownerOf(token).catch(function (error: Error) {
+            console.log("getWalletNFTs: owner error");
+          });
+          const rawUri = contract
+            .tokenURI(token)
+            .catch(function (error: Error) {
+              console.log("getWalletNFTs: tokenUri error");
+            });
+          const Uri = Promise.resolve(rawUri);
+          const getUri = Uri.then((value) => {
+            let str: string = value;
+            let cleanUri = str.replace("ipfs://", "https://ipfs.io/ipfs/");
+            let metadata = axios
+              .get(cleanUri, {
+                headers: {
+                  Authorization: auth,
+                },
+              })
+              .catch(function (error: any) {
+                console.log(error);
+              });
+            return metadata;
+          });
+          getUri.then((value) => {
+            let rawImg = value && value.data && value.data.image;
+            let name = value && value.data && value.data.name;
+            let desc = value && value.data && value.data.description;
+            let image =
+              rawImg && rawImg.replace("ipfs://", "https://ipfs.io/ipfs/");
+            Promise.resolve(owner).then((value) => {
+              console.log("osner", value);
+              if (value === user) {
+                setNftsFound(true);
+                let owner = value;
+                let meta = {
+                  name: name,
+                  img: image,
+                  tokenId: token,
+                  wallet: owner,
+                  desc,
+                };
+                itemArray.push(meta);
+              } else {
+                setCreatedNfts([]);
+              }
+            });
+          });
+        }
+      });
+      await new Promise((r) => setTimeout(r, 3000));
+      setCreatedNfts(itemArray);
+      setLoadingState(false);
+    } catch (err) {
+      setLoadingState(false);
+      console.log("Error occured", err);
+    }
+  };
+
   const openWeb3Modal = async () => {
     try {
       const web3Modal = new Web3Modal();
@@ -135,7 +215,7 @@ const Portal = () => {
 
   const relistNFT = async (tokenId: number) => {
     try {
-      console.log("tokenId", tokenId)
+      console.log("tokenId", tokenId);
       const signer = await openWeb3Modal();
       const price = ethers.utils.parseUnits(resalePrice as string, "ether");
       const nftContract = new ethers.Contract(
@@ -229,7 +309,7 @@ const Portal = () => {
                         size="md"
                         color={"gradient"}
                         css={{ mt: "$5", fontSize: "16px" }}
-                        onClick={async () => await relistNFT(nft.tokenId)}
+                        onPress={async () => await relistNFT(nft.tokenId)}
                       >
                         Relist for Sale
                       </Button>
@@ -240,6 +320,45 @@ const Portal = () => {
             );
           })}
         </Grid.Container>
+        <Spacer />
+        <Container md>
+          <Text h4>Created NFT's in Wallet</Text>
+          <Row>
+            <Grid.Container>
+              {createdNfts.map((nft: any, i) => {
+                console.log("createdNFTs", createdNfts);
+                return (
+                  <Grid>
+                    <Link>
+                      <Card
+                        isHoverable
+                        key={i}
+                        css={{ mw: "200px", marginRight: "$1" }}
+                        variant="bordered"
+                      >
+                        <Card.Image src={nft.img} />
+                        <Card.Body key={i}>
+                          <h3
+                            style={{
+                              color: "#9D00FF",
+                              fontFamily: "SF Pro Display",
+                            }}
+                          >
+                            Owned by You
+                          </h3>
+                          <Text h5>
+                            {nft.name} Token-{nft.tokenId}
+                          </Text>
+                          <Text>{nft.desc}</Text>
+                        </Card.Body>
+                      </Card>
+                    </Link>
+                  </Grid>
+                );
+              })}
+            </Grid.Container>
+          </Row>
+        </Container>
       </Container>
     </div>
   );
