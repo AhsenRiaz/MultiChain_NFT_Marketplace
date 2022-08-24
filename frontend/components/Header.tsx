@@ -15,8 +15,7 @@ import Logo from "../public/assets/logo.png";
 
 
 
-const Header = (props:any) => {
-  console.log("props", props)
+const Header = () => {
   return (
     <div style={{ backgroundColor: "black" }}>
       <Container xl>
