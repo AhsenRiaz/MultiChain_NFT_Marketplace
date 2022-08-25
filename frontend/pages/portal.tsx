@@ -243,7 +243,7 @@ const Portal = () => {
           <Col>
             {loadingState ? <Loader /> : null}
 
-            <Text h4>NFT's in Wallet </Text>
+            <Text h4>NFTs in Wallet</Text>
             <Text h5 css={{ color: "#39FF14" }}>
               {user}
             </Text>
@@ -273,7 +273,7 @@ const Portal = () => {
         <Grid.Container gap={3}>
           {nfts.map((nft, i) => {
             return (
-              <Grid xs={6} sm={4} md={6} lg={4}>
+              <Grid key={i} xs={6} sm={4} md={6} lg={4}>
                 <Link>
                   <Card variant="bordered" isHoverable key={i}>
                     <Card.Image
@@ -319,13 +319,12 @@ const Portal = () => {
         </Grid.Container>
         <Spacer />
         <Container md>
-          <Text h4>Created NFT's in Wallet</Text>
+          <Text h4>Created NFTs in Wallet</Text>
           <Row>
             <Grid.Container gap={4}>
               {createdNfts.map((nft: any, i) => {
-                console.log("createdNFTs", createdNfts);
                 return (
-                  <Grid>
+                  <Grid key={i}>
                     <Link>
                       <Card
                         isHoverable

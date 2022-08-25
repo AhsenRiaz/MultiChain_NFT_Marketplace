@@ -5,9 +5,8 @@ import Web3Modal from "web3modal";
 import "sf-font";
 import { Resell_Custom_NFT_Market } from "../../utils/contracts/NftMarketResellCustom";
 import { Create_NFT_ABI } from "../../utils/contracts/CreateNFT";
-import { getSigner, pinIMAGEtoIPFS, pinJSONtoIPFS } from "../../utils";
+import { pinIMAGEtoIPFS, pinJSONtoIPFS } from "../../utils";
 import {
-  Grid,
   Card,
   Text,
   Button,
@@ -16,16 +15,12 @@ import {
   Container,
   Col,
   Input,
-  FormElement,
 } from "@nextui-org/react";
 import {
-  cipherHH,
-  client,
   hh_NFT_Create_Address,
   hh_Resell_Custom_NFT_Address,
-  mainnet,
-  simpleCrypto,
 } from "../../utils/configuration/configuration";
+import Image from "next/image";
 
 interface IFormInput {
   price?: string;
@@ -116,7 +111,6 @@ const CreateNftPortal = () => {
           status: "😢 Something went wrong while uploading your tokenURI.",
         };
       }
-      console.log("pinateResponse", pinataResponse);
       const url = pinataResponse.pinataUrl;
       createNFT(url);
     } catch (error) {
@@ -137,7 +131,6 @@ const CreateNftPortal = () => {
       );
       let transaction1 = await createNftContract.createNFT(url);
       let tx = await transaction1.wait();
-      console.log("tx1", tx);
       let event = tx.events[0];
       let value = event.args[2];
       let tokenId = value.toNumber();
@@ -155,7 +148,6 @@ const CreateNftPortal = () => {
         value: listingFee,
       });
       let tx2 = await transaction2.wait();
-      console.log("tx2", tx2);
       router.push("/");
     } catch (error) {
       console.log("Error whicl creatingNFT", error);
@@ -178,7 +170,6 @@ const CreateNftPortal = () => {
                 </Text>
               </Card.Body>
             </Card>
-            <img src="chainagnostic.png" />
             <Card css={{ marginTop: "$5" }}>
               <Card.Body style={{ backgroundColor: "#00000040" }}>
                 <Text>
@@ -222,10 +213,10 @@ const CreateNftPortal = () => {
                   }}
                 />
                 {fileUrl && (
-                  <img
-                    className="rounded "
+                  <Image
                     height="200"
                     width="200"
+                    alt="nftImage"
                     src={fileUrl}
                   />
                 )}

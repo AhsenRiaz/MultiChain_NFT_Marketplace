@@ -19,7 +19,7 @@ const Header = () => {
       <Container xl>
         <Row justify="center" align="center" css={{ padding: "0rem 1rem" }}>
           <Col>
-            <Image height={90} width={90} src={Logo} />
+            <Image height={90} width={90} src={Logo} alt='logo' />
           </Col>
           <Col>
             <Link href="/">

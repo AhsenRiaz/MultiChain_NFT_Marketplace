@@ -208,7 +208,7 @@ const HomePage = () => {
             itemClass="carousel-item-padding-60-px"
           >
             {listedNfts.map((nft, i) => (
-              <div>
+              <div key={i}>
                 <Card.Image width={300} height={300} src={nft.img} />
               </div>
             ))}
@@ -217,12 +217,12 @@ const HomePage = () => {
       </Container>
       <Container sm>
         <Row css={{ marginTop: "$3", marginBottom: "$3" }}>
-          <Text h3>Latest NFT's</Text>
+          <Text h3>Latest NFTs</Text>
         </Row>
         <Grid.Container gap={3}>
           {listedNfts.map((nft, i) => {
             return (
-              <Grid xs={3}>
+              <Grid key={i} xs={3}>
                 <Card
                   css={{ boxShadow: "1px 1px 10px #ffffff" }}
                   variant="bordered"
