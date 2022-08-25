@@ -2,6 +2,37 @@ export const Resell_Custom_NFT_Market = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "itemId",
+        type: "uint256",
+      },
+    ],
+    name: "buyNFT",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "price",
+        type: "uint256",
+      },
+    ],
+    name: "listNft",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "contract IERC721",
         name: "_nft",
         type: "address",
@@ -74,6 +105,33 @@ export const Resell_Custom_NFT_Market = [
   },
   {
     inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "withdraw",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "_itemIds",
     outputs: [
       {
@@ -96,19 +154,6 @@ export const Resell_Custom_NFT_Market = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "itemId",
-        type: "uint256",
-      },
-    ],
-    name: "buyNFT",
-    outputs: [],
-    stateMutability: "payable",
     type: "function",
   },
   {
@@ -148,7 +193,7 @@ export const Resell_Custom_NFT_Market = [
             type: "bool",
           },
         ],
-        internalType: "struct NftMarketResell.MarketItem[]",
+        internalType: "struct NftMarketResellV2.MarketItem[]",
         name: "",
         type: "tuple[]",
       },
@@ -215,24 +260,6 @@ export const Resell_Custom_NFT_Market = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "price",
-        type: "uint256",
-      },
-    ],
-    name: "listNft",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "listingFees",
     outputs: [
@@ -290,33 +317,6 @@ export const Resell_Custom_NFT_Market = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "renounceOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
-    ],
-    name: "transferOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "withdraw",
-    outputs: [],
-    stateMutability: "payable",
     type: "function",
   },
 ];

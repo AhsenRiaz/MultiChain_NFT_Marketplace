@@ -14,7 +14,7 @@ import {
   Link,
   Progress,
 } from "@nextui-org/react";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
 import Web3 from "web3";
 import {
@@ -46,7 +46,7 @@ const Portal = () => {
     connectUser();
     getWalletNFTs();
     getCreatedNfts();
-  }, [setNfts, user, nftsFound, setCreatedNfts]);
+  }, [setNfts, user, setCreatedNfts]);
 
   const connectUser = async () => {
     try {
@@ -140,6 +140,7 @@ const Portal = () => {
       );
       const itemArray = [] as any;
       contract.getTokenIds().then((result: any) => {
+        console.log("result", result);
         let totalSup = parseInt(result);
         for (let i = 0; i < totalSup; i++) {
           var token = i + 1;
@@ -153,25 +154,18 @@ const Portal = () => {
             });
           const Uri = Promise.resolve(rawUri);
           const getUri = Uri.then((value) => {
-            let str: string = value;
-            let cleanUri = str.replace("ipfs://", "https://ipfs.io/ipfs/");
-            let metadata = axios
-              .get(cleanUri, {
-                headers: {
-                  Authorization: auth,
-                },
-              })
-              .catch(function (error: any) {
-                console.log(error);
-              });
+            let cleanUri = value;
+            let metadata = axios.get(cleanUri).catch(function (error: any) {
+              console.log(error);
+            });
             return metadata;
           });
-          getUri.then((value) => {
-            let rawImg = value && value.data && value.data.image;
+          getUri.then((value: any) => {
+            console.log("metadata", value);
+            let image = value && value.data && value.data.image;
             let name = value && value.data && value.data.name;
             let desc = value && value.data && value.data.description;
-            let image =
-              rawImg && rawImg.replace("ipfs://", "https://ipfs.io/ipfs/");
+
             Promise.resolve(owner).then((value) => {
               console.log("osner", value);
               if (value === user) {
@@ -264,7 +258,10 @@ const Portal = () => {
               </Button>
               <Button
                 size="sm"
-                onPress={getWalletNFTs}
+                onPress={() => {
+                  getWalletNFTs();
+                  getCreatedNfts();
+                }}
                 css={{ marginRight: "$2", marginBottom: "$2" }}
               >
                 Refresh NFTs
@@ -324,7 +321,7 @@ const Portal = () => {
         <Container md>
           <Text h4>Created NFT's in Wallet</Text>
           <Row>
-            <Grid.Container>
+            <Grid.Container gap={4}>
               {createdNfts.map((nft: any, i) => {
                 console.log("createdNFTs", createdNfts);
                 return (

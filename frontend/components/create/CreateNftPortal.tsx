@@ -1,13 +1,11 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import { ethers } from "ethers";
-import axios from "axios";
 import Web3Modal from "web3modal";
-import confetti from "canvas-confetti";
 import "sf-font";
 import { Resell_Custom_NFT_Market } from "../../utils/contracts/NftMarketResellCustom";
 import { Create_NFT_ABI } from "../../utils/contracts/CreateNFT";
-import { getSigner } from "../../utils";
+import { getSigner, pinIMAGEtoIPFS, pinJSONtoIPFS } from "../../utils";
 import {
   Grid,
   Card,
@@ -47,13 +45,14 @@ const CreateNftPortal = () => {
   const handleAsset = async (e: any) => {
     const file = e.target.files[0];
     try {
-      const added = await client.add(file, {
-        progress: (prog: any) => console.log("received", prog),
-      });
-      console.log("added", added);
-      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
-      console.log("Url", url);
-
+      const pinataResponse: any = await pinIMAGEtoIPFS(file);
+      if (!pinataResponse.success) {
+        return {
+          success: false,
+          status: "😢 Something went wrong while uploading your tokenURI.",
+        };
+      }
+      const url = pinataResponse.pinataUrl;
       setFileUrl(url);
     } catch (error) {
       console.log("Error uploading file: ", error);
@@ -63,15 +62,21 @@ const CreateNftPortal = () => {
   const buyNFT = async () => {
     const { description, name } = formInput;
     if (!description && !name && !fileUrl) return;
-    const data = JSON.stringify({
-      name,
-      description,
-      image: fileUrl,
-    });
-    
+
+    const metadata: any = new Object();
+    metadata.name = name;
+    metadata.description = description;
+    metadata.image = fileUrl;
+
     try {
-      const added = await client.add(data);
-      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+      const pinataResponse: any = await pinJSONtoIPFS(metadata);
+      if (!pinataResponse.success) {
+        return {
+          success: false,
+          status: "😢 Something went wrong while uploading your tokenURI.",
+        };
+      }
+      const url = pinataResponse.pinataUrl;
       mintNFT(url);
     } catch (error) {
       console.log("Error uploading file: ", error);
@@ -99,14 +104,20 @@ const CreateNftPortal = () => {
   const listNFT = async () => {
     const { description, name, price } = formInput;
     if (!description && !name && !price && !fileUrl) return;
-    const data = JSON.stringify({
-      name,
-      description,
-      image: fileUrl,
-    });
+    const metadata: any = new Object();
+    metadata.name = name;
+    metadata.description = description;
+    metadata.image = fileUrl;
     try {
-      const added = await client.add(data);
-      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+      const pinataResponse: any = await pinJSONtoIPFS(metadata);
+      if (!pinataResponse.success) {
+        return {
+          success: false,
+          status: "😢 Something went wrong while uploading your tokenURI.",
+        };
+      }
+      console.log("pinateResponse", pinataResponse);
+      const url = pinataResponse.pinataUrl;
       createNFT(url);
     } catch (error) {
       console.log("Error uploading file: ", error);
@@ -119,29 +130,31 @@ const CreateNftPortal = () => {
       const connection = await web3Modal.connect();
       const provider = new ethers.providers.Web3Provider(connection);
       const signer = provider.getSigner();
-      let contract = new ethers.Contract(
+      let createNftContract = new ethers.Contract(
         hh_NFT_Create_Address,
         Create_NFT_ABI,
         signer
       );
-      let transaction = contract.createNFT(url);
-      let tx = transaction.wait();
-      console.log("tx", tx);
+      let transaction1 = await createNftContract.createNFT(url);
+      let tx = await transaction1.wait();
+      console.log("tx1", tx);
       let event = tx.events[0];
       let value = event.args[2];
       let tokenId = value.toNumber();
       const price = ethers.utils.parseUnits(formInput.price as string, "ether");
-      contract = new ethers.Contract(
+      let createNftResellContract = new ethers.Contract(
         hh_Resell_Custom_NFT_Address,
         Resell_Custom_NFT_Market,
         signer
       );
-      let listingFee = await contract.listingFees();
+      let listingFee = await createNftResellContract.listingFees();
       listingFee = listingFee.toString();
-      transaction = await contract.listNft(tokenId, price, {
+      await createNftContract.approve(createNftResellContract.address, tokenId);
+
+      let transaction2 = await createNftResellContract.listNft(tokenId, price, {
         value: listingFee,
       });
-      let tx2 = await transaction.wait();
+      let tx2 = await transaction2.wait();
       console.log("tx2", tx2);
       router.push("/");
     } catch (error) {

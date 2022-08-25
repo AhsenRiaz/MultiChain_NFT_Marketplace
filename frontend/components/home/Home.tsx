@@ -19,22 +19,28 @@ import "react-multi-carousel/lib/styles.css";
 import {
   cipherHH,
   hh_NFT_Contract_Address,
+  hh_NFT_Create_Address,
   hh_Resell_Contract_Address,
+  hh_Resell_Custom_NFT_Address,
   mainnet,
   simpleCrypto,
 } from "../../utils/configuration/configuration";
 import { Collection_Contract_Abi } from "../../utils/contracts/Collection";
 import { NftMarketResell_Contract_Abi } from "../../utils/contracts/NftMarketResell";
 import { getSigner, responsive } from "../../utils";
+import { Create_NFT_ABI } from "../../utils/contracts/CreateNFT";
+import { Resell_Custom_NFT_Market } from "../../utils/contracts/NftMarketResellCustom";
 
 const HomePage = () => {
   const router = useRouter();
 
   const [listedNfts, setListedNfts] = useState<any[]>([]);
+  const [customCreatedNfts, setCustomCreatedNfts] = useState<any[]>([]);
 
   useEffect(() => {
     getListedNFTs();
-  }, [setListedNfts]);
+    loadNewSaleNFTs();
+  }, [setListedNfts, customCreatedNfts]);
 
   const getListedNFTs = async () => {
     try {
@@ -112,6 +118,46 @@ const HomePage = () => {
       console.log("Transaction Failed", err);
     }
   };
+
+  async function loadNewSaleNFTs() {
+    const provider = new ethers.providers.JsonRpcProvider(mainnet);
+    const key = simpleCrypto.decrypt(cipherHH).toString();
+    const wallet = new ethers.Wallet(key, provider);
+    const tokenContract = new ethers.Contract(
+      hh_NFT_Create_Address,
+      Create_NFT_ABI,
+      wallet
+    );
+    const marketContract = new ethers.Contract(
+      hh_Resell_Custom_NFT_Address,
+      Resell_Custom_NFT_Market,
+      wallet
+    );
+    const data = await marketContract.getAvailableNfts();
+    console.log("data", data);
+    const items = await Promise.all(
+      data.map(async (i: any) => {
+        console.log("i", i);
+        const tokenUri = await tokenContract.tokenURI(i.tokenId);
+        console.log("tokenURI", tokenUri);
+        const meta = await axios.get(tokenUri);
+        let price = ethers.utils.formatUnits(i.price.toString(), "ether");
+        console.log("price", price);
+        let item = {
+          price,
+          tokenId: i.tokenId.toNumber(),
+          seller: i.seller,
+          owner: i.owner,
+          image: meta.data.image,
+          name: meta.data.name,
+          description: meta.data.description,
+        };
+        return item;
+      })
+    );
+    console.log("items", items);
+    setCustomCreatedNfts(items);
+  }
 
   const buyNFT = async (tokenId: number, cost: string) => {
     try {
