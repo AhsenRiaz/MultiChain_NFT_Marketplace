@@ -62,6 +62,7 @@ export const pinIMAGEtoIPFS = async (image: any) => {
   const formData = new FormData();
   formData.append("file", image);
   const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;
+
   try {
     return axios
       .post(url, formData, {
