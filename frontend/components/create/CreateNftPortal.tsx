@@ -15,12 +15,12 @@ import {
   Container,
   Col,
   Input,
+  Image,
 } from "@nextui-org/react";
 import {
   hh_NFT_Create_Address,
   hh_Resell_Custom_NFT_Address,
 } from "../../utils/configuration/configuration";
-import Image from "next/image";
 
 interface IFormInput {
   price?: string;

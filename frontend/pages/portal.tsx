@@ -12,13 +12,11 @@ import {
   Text,
   Grid,
   Link,
-  Progress,
 } from "@nextui-org/react";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { useEffect, useState } from "react";
 import Web3 from "web3";
 import {
-  auth,
   cipherHH,
   hh_NFT_Contract_Address,
   hh_NFT_Create_Address,
