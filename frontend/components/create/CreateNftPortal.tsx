@@ -173,8 +173,6 @@ const CreateNftPortal = () => {
     }
   };
 
-  
-
   return (
     <div>
       <Spacer />
@@ -200,12 +198,7 @@ const CreateNftPortal = () => {
                 </Text>
               </Card.Body>
             </Card>
-            <Spacer />
-            <Spacer />
-            <Text h3>Mint From the Collection</Text>
-            <Button color={"gradient"}>Mint and List</Button>
           </Col>
-
           <Col>
             <Spacer />
             <Text h3>Create and Sell your NFT in the Marketplace</Text>
