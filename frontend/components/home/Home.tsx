@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Web3Modal from "web3modal";
 import { useRouter } from "next/router";
 import {
   Grid,
@@ -11,9 +10,7 @@ import {
   Row,
   Spacer,
   Container,
-  Image,
 } from "@nextui-org/react";
-import confetti from "canvas-confetti";
 import "sf-font";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
