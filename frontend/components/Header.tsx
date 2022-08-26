@@ -1,12 +1,9 @@
 import {
-  createTheme,
-  NextUIProvider,
-  Spacer,
+  
   Button,
   Col,
   Row,
   Container,
-  Dropdown,
 } from "@nextui-org/react";
 import Image from "next/image";
 import Link from "next/link";
