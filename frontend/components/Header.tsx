@@ -1,14 +1,10 @@
-import {
-  
-  Button,
-  Col,
-  Row,
-  Container,
-} from "@nextui-org/react";
+import { Button, Col, Row, Container } from "@nextui-org/react";
 import Image from "next/image";
 import Link from "next/link";
 import "sf-font";
 import Logo from "../public/assets/logo.png";
+import ConnectChain from "./ConnectChain";
+
 
 const Header = () => {
   return (
@@ -16,52 +12,32 @@ const Header = () => {
       <Container xl>
         <Row justify="center" align="center" css={{ padding: "0rem 1rem" }}>
           <Col>
-            <Image height={90} width={90} src={Logo} alt='logo' />
+            <Image height={90} width={90} src={Logo} alt="logo" />
           </Col>
           <Col>
-            <Link href="/">
-              <Button
-                size={"sm"}
-                style={{
-                  background: "#00000070",
-                  boxShadow: "0px 0px 4px #ffffff",
-                }}
-              >
+            <Button
+              size={"sm"}
+              style={{
+                background: "#00000070",
+                boxShadow: "0px 0px 4px #ffffff",
+              }}
+            >
+              <Link href="/">
                 <a
                   style={{
                     fontFamily: "SF Pro Display",
                     fontWeight: "500",
                     color: "white",
                     fontSize: "20px",
+                    textDecoration: "none",
                   }}
                 >
                   Marketplace
                 </a>
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </Col>
-          <Col>
-            <Link href="/collections">
-              <Button
-                size="sm"
-                style={{
-                  background: "#00000070",
-                  boxShadow: "0px 0px 4px #ffffff",
-                }}
-              >
-                <a
-                  style={{
-                    fontFamily: "SF Pro Display",
-                    fontWeight: "500",
-                    color: "white",
-                    fontSize: "20px",
-                  }}
-                >
-                  Collections
-                </a>
-              </Button>
-            </Link>
-          </Col>
+
           <Col>
             <Button
               size="sm"
@@ -77,6 +53,7 @@ const Header = () => {
                     fontWeight: "500",
                     color: "white",
                     fontSize: "20px",
+                    textDecoration: "none",
                   }}
                 >
                   Create NFT
@@ -99,6 +76,7 @@ const Header = () => {
                     fontWeight: "500",
                     color: "white",
                     fontSize: "20px",
+                    textDecoration: "none",
                   }}
                 >
                   My NFT Portal
@@ -106,6 +84,7 @@ const Header = () => {
               </Link>
             </Button>
           </Col>
+          <ConnectChain />
         </Row>
       </Container>
     </div>
