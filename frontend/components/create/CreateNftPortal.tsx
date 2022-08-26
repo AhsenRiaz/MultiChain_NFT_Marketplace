@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import Web3Modal from "web3modal";
 import "sf-font";
 import { Resell_Custom_NFT_Market } from "../../utils/contracts/NftMarketResellCustom";
 import { Create_NFT_ABI } from "../../utils/contracts/CreateNFT";
-import { pinIMAGEtoIPFS, pinJSONtoIPFS } from "../../utils";
+import { getSigner, pinIMAGEtoIPFS, pinJSONtoIPFS } from "../../utils";
 import {
   Card,
   Text,
@@ -26,6 +26,15 @@ interface IFormInput {
   price?: string;
   name?: string;
   description?: string;
+}
+
+function hex_to_ascii(str1: any) {
+  var hex = str1.toString();
+  var str = "";
+  for (var n = 0; n < hex.length; n += 2) {
+    str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
+  }
+  return str;
 }
 
 const CreateNftPortal = () => {
@@ -120,39 +129,51 @@ const CreateNftPortal = () => {
 
   const createNFT = async (url: string) => {
     try {
-      const web3Modal = new Web3Modal();
-      const connection = await web3Modal.connect();
-      const provider = new ethers.providers.Web3Provider(connection);
-      const signer = provider.getSigner();
+      const signer = await getSigner();
       let createNftContract = new ethers.Contract(
         hh_NFT_Create_Address,
         Create_NFT_ABI,
         signer
       );
-      let transaction1 = await createNftContract.createNFT(url);
-      let tx = await transaction1.wait();
-      let event = tx.events[0];
-      let value = event.args[2];
-      let tokenId = value.toNumber();
-      const price = ethers.utils.parseUnits(formInput.price as string, "ether");
       let createNftResellContract = new ethers.Contract(
         hh_Resell_Custom_NFT_Address,
         Resell_Custom_NFT_Market,
         signer
       );
-      let listingFee = await createNftResellContract.listingFees();
-      listingFee = listingFee.toString();
-      await createNftContract.approve(createNftResellContract.address, tokenId);
 
-      let transaction2 = await createNftResellContract.listNft(tokenId, price, {
-        value: listingFee,
-      });
-      let tx2 = await transaction2.wait();
-      router.push("/");
+      let transaction1 = await createNftContract.createNFT(
+        createNftResellContract.address,
+        url
+      );
+      console.log("transaction1", transaction1);
+
+      let tx = await transaction1.wait();
+      let event = tx.events[0];
+      let value = event.args[2];
+      let tokenId: number = value.toNumber();
+
+      let price = ethers.utils.parseUnits(formInput.price as string, "ether");
+      let listingFee = await createNftResellContract.listingFees();
+      listingFee = BigInt(listingFee);
+      try {
+        let transaction2 = await createNftResellContract.listNft(
+          tokenId,
+          price,
+          {
+            value: listingFee,
+          }
+        );
+        let tx2 = await transaction2.wait();
+        let a = tx2.router.push("/");
+      } catch (err: any) {
+        console.log("err", err);
+      }
     } catch (error) {
       console.log("Error whicl creatingNFT", error);
     }
   };
+
+  
 
   return (
     <div>
@@ -179,7 +200,12 @@ const CreateNftPortal = () => {
                 </Text>
               </Card.Body>
             </Card>
+            <Spacer />
+            <Spacer />
+            <Text h3>Mint From the Collection</Text>
+            <Button color={"gradient"}>Mint and List</Button>
           </Col>
+
           <Col>
             <Spacer />
             <Text h3>Create and Sell your NFT in the Marketplace</Text>
