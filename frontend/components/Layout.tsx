@@ -2,6 +2,8 @@ import { Fragment, ReactNode } from "react";
 import "sf-font";
 import Header from "./Header";
 import { createTheme, NextUIProvider } from "@nextui-org/react";
+import { Web3ReactProvider } from "@web3-react/core";
+import { getLibrary } from "../utils/etherConnection/getLibrary";
 
 interface ILayout {
   children: ReactNode;
@@ -22,7 +24,7 @@ const theme = createTheme({
       primarySolidContrast: "$white",
       primaryShadow: "$white500",
       transparent: "#00000000",
-      inputBorder:'2px solid #5e1dad',
+      inputBorder: "2px solid #5e1dad",
       gradient:
         "linear-gradient(112deg, $blue100 -25%, $pink500 -10%, $purple300 90%)",
       link: "#5e1dad",
@@ -39,10 +41,12 @@ const theme = createTheme({
 
 const Layout = ({ children }: ILayout) => {
   return (
-    <Fragment>
-      <Header />
-      <NextUIProvider theme={theme}>{children}</NextUIProvider>
-    </Fragment>
+    <Web3ReactProvider getLibrary={getLibrary}>
+      <Fragment>
+        <Header />
+        <NextUIProvider theme={theme}>{children}</NextUIProvider>
+      </Fragment>
+    </Web3ReactProvider>
   );
 };
 
