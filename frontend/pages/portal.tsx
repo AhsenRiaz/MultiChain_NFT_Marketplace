@@ -38,13 +38,14 @@ const Portal = () => {
   const [createdNfts, setCreatedNfts] = useState<any[]>([]);
 
   const [loadingState, setLoadingState] = useState<boolean>(false);
+  const [collection1Found, setCollection1Found] = useState<boolean>(false);
   const [nftsFound, setNftsFound] = useState<boolean>(false);
 
   useEffect(() => {
     connectUser();
     getWalletNFTs();
     getCreatedNfts();
-  }, [setNfts, user, setCreatedNfts]);
+  }, [user, , setNftsFound, setCollection1Found]);
 
   const connectUser = async () => {
     try {
@@ -71,6 +72,7 @@ const Portal = () => {
       );
       const itemArray = [] as any;
       contract.totalSupply().then((result: any) => {
+        console.log("result", result);
         let totalSup = parseInt(result);
         for (let i = 0; i < totalSup; i++) {
           var token = i + 1;
@@ -92,6 +94,7 @@ const Portal = () => {
             return metadata;
           });
           getUri.then((value) => {
+            console.log("value", value);
             let rawImg = value && value.data && value.data.image;
             let name = value && value.data && value.data.name;
             let desc = value && value.data && value.data.description;
@@ -99,7 +102,6 @@ const Portal = () => {
               rawImg && rawImg.replace("ipfs://", "https://ipfs.io/ipfs/");
             Promise.resolve(owner).then((value) => {
               if (value === user) {
-                setNftsFound(true);
                 let owner = value;
                 let meta = {
                   name: name,
@@ -109,15 +111,16 @@ const Portal = () => {
                   desc,
                 };
                 itemArray.push(meta);
-              } else {
-                setNfts([]);
               }
             });
           });
         }
       });
       await new Promise((r) => setTimeout(r, 3000));
-      setNfts(itemArray);
+      if (itemArray) {
+        setCollection1Found(true);
+        setNfts(itemArray);
+      }
       setLoadingState(false);
     } catch (err) {
       setLoadingState(false);
@@ -138,7 +141,6 @@ const Portal = () => {
       );
       const itemArray = [] as any;
       contract.getTokenIds().then((result: any) => {
-        console.log("result", result);
         let totalSup = parseInt(result);
         for (let i = 0; i < totalSup; i++) {
           var token = i + 1;
@@ -159,7 +161,6 @@ const Portal = () => {
             return metadata;
           });
           getUri.then((value: any) => {
-            console.log("metadata", value);
             let image = value && value.data && value.data.image;
             let name = value && value.data && value.data.name;
             let desc = value && value.data && value.data.description;
@@ -167,7 +168,6 @@ const Portal = () => {
             Promise.resolve(owner).then((value) => {
               console.log("osner", value);
               if (value === user) {
-                setNftsFound(true);
                 let owner = value;
                 let meta = {
                   name: name,
@@ -177,15 +177,17 @@ const Portal = () => {
                   desc,
                 };
                 itemArray.push(meta);
-              } else {
-                setCreatedNfts([]);
               }
             });
           });
         }
       });
       await new Promise((r) => setTimeout(r, 3000));
-      setCreatedNfts(itemArray);
+      if (itemArray) {
+        setNftsFound(true);
+
+        setCreatedNfts(itemArray);
+      }
       setLoadingState(false);
     } catch (err) {
       setLoadingState(false);
@@ -220,14 +222,11 @@ const Portal = () => {
         NftMarketResell_Contract_Abi,
         signer
       );
-      console.log("resellNftContract", resellNftContract);
-      await nftContract.setApprovalForAll(hh_Resell_Contract_Address, true);
       let listingFee = await resellNftContract.getListingFee();
       let transaction = await resellNftContract.listSale(tokenId, price, {
         value: listingFee,
       });
       let fulfilled = await transaction.wait();
-      console.log("fulfilled", fulfilled);
       router.push("/");
     } catch (err) {
       console.log("Error in relistNFT", err);
@@ -242,6 +241,7 @@ const Portal = () => {
             {loadingState ? <Loader /> : null}
 
             <Text h4>NFTs in Wallet</Text>
+
             <Text h5 css={{ color: "#39FF14" }}>
               {user}
             </Text>
@@ -272,45 +272,46 @@ const Portal = () => {
           {nfts.map((nft, i) => {
             return (
               <Grid key={i} xs={6} sm={4} md={6} lg={4}>
-                <Link>
-                  <Card variant="bordered" isHoverable key={i}>
-                    <Card.Image
-                      objectFit="cover"
-                      width="100%"
-                      height={250}
-                      src={nft.img}
+                {/* <Link> */}
+                <Card variant="bordered" isHoverable key={i}>
+                  <Card.Image
+                    objectFit="cover"
+                    width="100%"
+                    height={250}
+                    src={nft.img}
+                  />
+                  <Card.Body>
+                    <Text h3>Owned by You</Text>
+                    <Text h5>
+                      {nft.name} Token-{nft.tokenId}
+                    </Text>
+                    {/* <Text>{nft.desc}</Text> */}
+                    <Input
+                      size="sm"
+                      css={{
+                        marginTop: "$4",
+                        maxWidth: "120px",
+                        marginBottom: "$2",
+                        border: "$inputBorder",
+                        fontFamily: "SF Pro Display",
+                        fontWeight: "bolder",
+                        fontSize: "large",
+                        color: "white",
+                      }}
+                      onChange={(e) => setResalePrice(e.target.value)}
+                      placeholder="Set your price"
                     />
-                    <Card.Body>
-                      <Text h3>Owned by You</Text>
-                      <Text h5>
-                        {nft.name} Token-{nft.tokenId}
-                      </Text>
-                      {/* <Text>{nft.desc}</Text> */}
-                      <Input
-                        size="sm"
-                        css={{
-                          marginTop: "$4",
-                          maxWidth: "120px",
-                          marginBottom: "$2",
-                          border: "$inputBorder",
-                          fontFamily: "SF Pro Display",
-                          fontWeight: "bolder",
-                          fontSize: "large",
-                        }}
-                        onChange={(e) => setResalePrice(e.target.value)}
-                        placeholder="Set your price"
-                      />
-                      <Button
-                        size="md"
-                        color={"gradient"}
-                        css={{ mt: "$5", fontSize: "16px" }}
-                        onPress={async () => await relistNFT(nft.tokenId)}
-                      >
-                        Relist for Sale
-                      </Button>
-                    </Card.Body>
-                  </Card>
-                </Link>
+                    <Button
+                      size="md"
+                      color={"gradient"}
+                      css={{ mt: "$5", fontSize: "16px" }}
+                      onPress={async () => await relistNFT(nft.tokenId)}
+                    >
+                      Relist for Sale
+                    </Button>
+                  </Card.Body>
+                </Card>
+                {/* </Link> */}
               </Grid>
             );
           })}
