@@ -86,6 +86,11 @@ export const Create_NFT_ABI = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "marketContract",
+        type: "address",
+      },
+      {
         internalType: "string",
         name: "tokenURI",
         type: "string",
