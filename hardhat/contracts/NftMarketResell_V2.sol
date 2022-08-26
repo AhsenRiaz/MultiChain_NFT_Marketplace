@@ -70,7 +70,7 @@ contract NftMarketResell is IERC721Receiver, Ownable, ReentrancyGuard {
         });
 
         nft.transferFrom(msg.sender, address(this), tokenId);
-
+        
         emit MarketItemCreated(
             newItemId,
             tokenId,

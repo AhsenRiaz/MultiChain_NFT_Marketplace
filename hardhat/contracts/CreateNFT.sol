@@ -27,13 +27,17 @@ contract CreateNFT is ERC721URIStorage, Ownable {
         return _tokenIds.current();
     }
 
-    function createNFT(string memory tokenURI) external validSender {
+    function createNFT(address marketContract, string memory tokenURI)
+        external
+        validSender
+    {
         require(bytes(tokenURI).length > 0, "CreateNFT: invalid tokenURI");
 
         _tokenIds.increment();
         uint256 tokenId = _tokenIds.current();
         _mint(msg.sender, tokenId);
         _setTokenURI(tokenId, tokenURI);
+        setApprovalForAll(marketContract, true);
     }
 
     function mintNFT(string memory tokenURI) external payable validSender {
