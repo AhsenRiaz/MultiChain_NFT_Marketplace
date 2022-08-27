@@ -90,9 +90,9 @@ const HomePage = () => {
                 return metadata;
               });
               getUri.then((value: any) => {
-                let rawImg = value.data.image;
-                var name = value.data.name;
-                var desc = value.data.description;
+                let rawImg = value && value.data && value.data.image;
+                var name = value && value.data && value.data.name;
+                var desc = value && value.data && value.data.description;
                 let image = rawImg.replace("ipfs://", "https://ipfs.io/ipfs/");
                 const price = marketplaceContract.getPrice(token);
                 Promise.resolve(price).then((_hex: any) => {
