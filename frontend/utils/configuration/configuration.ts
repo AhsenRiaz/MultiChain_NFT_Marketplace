@@ -2,8 +2,7 @@ import SimpleCrypto from "simple-crypto-js";
 
 const cipherKey = "&E)H@MbQeThWmZq4t7w!z%C*F-JaNdRf";
 const ethraw = "xyz";
-const hhraw =
-  "c40656fc764ad0dadaef75308e3619e0c7c6812923f8d436fdcc630513cd42d3";
+const hhraw = process.env.NEXT_PUBLIC_PRIVATE_KEY as any;
 
 export const simpleCrypto = new SimpleCrypto(cipherKey);
 export const cipherEth = simpleCrypto.encrypt(ethraw);
@@ -21,6 +20,6 @@ export const hh_NFT_Create_Address =
 export const hh_Resell_Custom_NFT_Address =
   "0x68f10D9b6292a031e23c560408e8C7556919a350";
 
-const hhrpc = "https://rpc.ankr.com/eth_ropsten";
+const hhrpc = process.env.NEXT_PUBLIC_RPC as any;
 
 export var mainnet = hhrpc;
