@@ -36,11 +36,16 @@ const HomePage = () => {
 
   const [listedNfts, setListedNfts] = useState<any[]>([]);
   const [customCreatedNfts, setCustomCreatedNfts] = useState<any[]>([]);
+  const [listedNftsFound, setListedNftsFound] = useState<boolean>(false);
+  const [newSaleNftsFound, setSaleNftsFound] = useState<boolean>(false);
 
   useEffect(() => {
     getListedNFTs();
+  }, [listedNftsFound]);
+
+  useEffect(() => {
     loadNewSaleNFTs();
-  }, [setListedNfts]);
+  }, [setSaleNftsFound]);
 
   const handleConfetti = () => {
     confetti();
@@ -117,7 +122,10 @@ const HomePage = () => {
         }
       });
       await new Promise((r) => setTimeout(r, 3000));
-      setListedNfts(itemArray);
+      if (itemArray !== null) {
+        setListedNfts(itemArray);
+        setListedNftsFound(true);
+      }
     } catch (err) {
       console.log("Transaction Failed", err);
     }
@@ -137,6 +145,8 @@ const HomePage = () => {
       Resell_Custom_NFT_Market,
       wallet
     );
+    const itemArray = [] as any[];
+
     const data = await marketContract.getAvailableNfts();
     console.log("data", data);
     const items = await Promise.all(
@@ -146,7 +156,6 @@ const HomePage = () => {
         console.log("tokenURI", tokenUri);
         const meta = await axios.get(tokenUri);
         let price = ethers.utils.formatUnits(i.price.toString(), "ether");
-        console.log("price", price);
         let item = {
           itemId: i.itemId.toNumber(),
           price,
@@ -157,11 +166,14 @@ const HomePage = () => {
           name: meta.data.name,
           description: meta.data.description,
         };
-        return item;
+        itemArray.push(item);
       })
     );
-    console.log("items", items);
-    setCustomCreatedNfts(items);
+    await new Promise((r) => setTimeout(r, 3000));
+    if (itemArray !== null) {
+      setCustomCreatedNfts(items);
+      setSaleNftsFound(true);
+    }
   }
 
   const buyNFT = async (tokenId: number, cost: string) => {
