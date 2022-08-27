@@ -258,11 +258,74 @@ const HomePage = () => {
           <Text h3>Latest NFTs</Text>
         </Row>
         <Grid.Container gap={3}>
-          {listedNfts.map((nft, i) => {
-            return (
+          {listedNfts &&
+            listedNfts.map((nft, i) => {
+              return (
+                <Grid key={i} xs={3}>
+                  <Card
+                    css={{ boxShadow: "1px 1px 10px #ffffff" }}
+                    variant="bordered"
+                    key={i}
+                  >
+                    <Text
+                      css={{
+                        color: "white",
+                        fontWeight: "bold",
+                        fontFamily: "SF Pro Display",
+                        fontSize: "20px",
+                        marginLeft: "10px",
+                      }}
+                    >
+                      {nft.name} Token-{nft.tokenId}{" "}
+                    </Text>
+                    <Card.Body css={{ p: 0 }}>
+                      <Card.Image
+                        css={{ maxWidth: "180px", borderRadius: "6%" }}
+                        src={nft.img}
+                      />
+                    </Card.Body>
+                    <Card.Footer css={{ justifyItems: "flex-start" }}>
+                      <Row
+                        key={i}
+                        wrap="wrap"
+                        justify="space-between"
+                        align="center"
+                      >
+                        <Text style={{ fontSize: "20px" }}>
+                          Price: {nft.val}
+                        </Text>
+                        <Button
+                          size={"sm"}
+                          color="gradient"
+                          style={{ fontSize: "20px" }}
+                          onPress={async () =>
+                            await buyNFT(nft.tokenId, nft.cost)
+                          }
+                        >
+                          Buy
+                        </Button>
+                      </Row>
+                    </Card.Footer>
+                  </Card>
+                </Grid>
+              );
+            })}
+        </Grid.Container>
+      </Container>
+      <Spacer />
+      <Container sm>
+        <Row css={{ marginTop: "$3", marginBottom: "$3" }}>
+          <Text h3>Latest NFTs Created</Text>
+        </Row>
+        <Grid.Container gap={1} justify="flex-start">
+          {customCreatedNfts &&
+            customCreatedNfts.map((nft, i) => (
               <Grid key={i} xs={3}>
                 <Card
-                  css={{ boxShadow: "1px 1px 10px #ffffff" }}
+                  style={{
+                    marginRight: "3px",
+                    boxShadow: "1px 1px 10px #ffffff",
+                  }}
                   variant="bordered"
                   key={i}
                 >
@@ -272,32 +335,32 @@ const HomePage = () => {
                       fontWeight: "bold",
                       fontFamily: "SF Pro Display",
                       fontSize: "20px",
-                      marginLeft: "10px",
+                      marginLeft: "1rem",
                     }}
                   >
-                    {nft.name} Token-{nft.tokenId}{" "}
+                    {nft.name}
                   </Text>
                   <Card.Body css={{ p: 0 }}>
                     <Card.Image
-                      css={{ maxWidth: "180px", borderRadius: "6%" }}
-                      src={nft.img}
+                      style={{
+                        maxWidth: "150px",
+                        maxHeight: "150px",
+                        borderRadius: "6%",
+                      }}
+                      src={nft.image}
                     />
                   </Card.Body>
                   <Card.Footer css={{ justifyItems: "flex-start" }}>
-                    <Row
-                      key={i}
-                      wrap="wrap"
-                      justify="space-between"
-                      align="center"
-                    >
-                      <Text style={{ fontSize: "20px" }}>Price: {nft.val}</Text>
+                    <Row wrap="wrap" justify="space-between" align="center">
+                      <Text>{nft.description}</Text>
+                      <Text style={{ fontSize: "30px" }}>{nft.price}</Text>
                       <Button
-                        size={"sm"}
                         color="gradient"
                         style={{ fontSize: "20px" }}
-                        onPress={async () =>
-                          await buyNFT(nft.tokenId, nft.cost)
-                        }
+                        onPress={async () => {
+                          handleConfetti();
+                          buyCustomCreatedNFT(nft);
+                        }}
                       >
                         Buy
                       </Button>
@@ -305,66 +368,7 @@ const HomePage = () => {
                   </Card.Footer>
                 </Card>
               </Grid>
-            );
-          })}
-        </Grid.Container>
-      </Container>
-      <Spacer />
-      <Container sm>
-        <Row css={{ marginTop: "$3", marginBottom: "$3" }}>
-          <Text h3>Latest NFTs Created</Text>
-        </Row>
-        <Grid.Container gap={1} justify="flex-start">
-          {customCreatedNfts.map((nft, i) => (
-            <Grid key={i} xs={3}>
-              <Card
-                style={{
-                  marginRight: "3px",
-                  boxShadow: "1px 1px 10px #ffffff",
-                }}
-                variant="bordered"
-                key={i}
-              >
-                <Text
-                  css={{
-                    color: "white",
-                    fontWeight: "bold",
-                    fontFamily: "SF Pro Display",
-                    fontSize: "20px",
-                    marginLeft: "1rem",
-                  }}
-                >
-                  {nft.name}
-                </Text>
-                <Card.Body css={{ p: 0 }}>
-                  <Card.Image
-                    style={{
-                      maxWidth: "150px",
-                      maxHeight: "150px",
-                      borderRadius: "6%",
-                    }}
-                    src={nft.image}
-                  />
-                </Card.Body>
-                <Card.Footer css={{ justifyItems: "flex-start" }}>
-                  <Row wrap="wrap" justify="space-between" align="center">
-                    <Text>{nft.description}</Text>
-                    <Text style={{ fontSize: "30px" }}>{nft.price}</Text>
-                    <Button
-                      color="gradient"
-                      style={{ fontSize: "20px" }}
-                      onPress={async () => {
-                        handleConfetti();
-                        buyCustomCreatedNFT(nft);
-                      }}
-                    >
-                      Buy
-                    </Button>
-                  </Row>
-                </Card.Footer>
-              </Card>
-            </Grid>
-          ))}
+            ))}
         </Grid.Container>
       </Container>
     </div>
