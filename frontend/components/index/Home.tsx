@@ -45,6 +45,7 @@ const HomePage = () => {
 
   useEffect(() => {
     loadNewSaleNFTs();
+    console.log("custom", customCreatedNfts);
   }, [setSaleNftsFound]);
 
   const handleConfetti = () => {
@@ -313,64 +314,7 @@ const HomePage = () => {
         </Grid.Container>
       </Container>
       <Spacer />
-      <Container sm>
-        <Row css={{ marginTop: "$3", marginBottom: "$3" }}>
-          <Text h3>Latest NFTs Created</Text>
-        </Row>
-        <Grid.Container gap={1} justify="flex-start">
-          {customCreatedNfts &&
-            customCreatedNfts.map((nft, i) => (
-              <Grid key={i} xs={3}>
-                <Card
-                  style={{
-                    marginRight: "3px",
-                    boxShadow: "1px 1px 10px #ffffff",
-                  }}
-                  variant="bordered"
-                  key={i}
-                >
-                  <Text
-                    css={{
-                      color: "white",
-                      fontWeight: "bold",
-                      fontFamily: "SF Pro Display",
-                      fontSize: "20px",
-                      marginLeft: "1rem",
-                    }}
-                  >
-                    {nft.name}
-                  </Text>
-                  <Card.Body css={{ p: 0 }}>
-                    <Card.Image
-                      style={{
-                        maxWidth: "150px",
-                        maxHeight: "150px",
-                        borderRadius: "6%",
-                      }}
-                      src={nft.image}
-                    />
-                  </Card.Body>
-                  <Card.Footer css={{ justifyItems: "flex-start" }}>
-                    <Row wrap="wrap" justify="space-between" align="center">
-                      <Text>{nft.description}</Text>
-                      <Text style={{ fontSize: "30px" }}>{nft.price}</Text>
-                      <Button
-                        color="gradient"
-                        style={{ fontSize: "20px" }}
-                        onPress={async () => {
-                          handleConfetti();
-                          buyCustomCreatedNFT(nft);
-                        }}
-                      >
-                        Buy
-                      </Button>
-                    </Row>
-                  </Card.Footer>
-                </Card>
-              </Grid>
-            ))}
-        </Grid.Container>
-      </Container>
+      <Container sm></Container>
     </div>
   );
 };
